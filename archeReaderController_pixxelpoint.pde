@@ -76,7 +76,7 @@ int RECT_WIDTH  = 6000; // 6000
 int current_row_index = 0;
 int current_col_index = 0;
 
-boolean noMachine = false;
+boolean noMachine = true;
 
 static int MARGIN = 10;
 
@@ -87,7 +87,7 @@ void setup() {
   size(400, 400, P2D); // much smaller
 
   // connect to socket
-  myClient = new Client(this, "0.0.0.0", 3000); 
+  myClient = new Client(this, "127.0.0.1", 3000); 
 
   smooth();
   
