@@ -80,8 +80,6 @@ public class Gui {
       fy+=margin+5;
       text("macroState: " + macroStates[macroState], fx,fy);
       fy+=margin+5;
-      text("last_direction: " + lastDir, fx,fy);
-      fy+=margin+5;
     }
   }
 

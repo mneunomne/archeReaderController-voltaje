@@ -34,6 +34,8 @@ static final int RETURNING_TOP_OFFSET       = 11;
 static final int RETURNING_TOP              = 12;
 static final int RESET_OFFSET               = 13;
 
+static final int MICRODELAY_DEFAULT 				= 200;
+
 int macroState = 0;
 String [] macroStates = {
   "MACRO_IDLE",
@@ -52,14 +54,6 @@ String [] macroStates = {
   "RESET_OFFSET"
 };
 
-int OFFSET_STEPS = 2000;
-
-int small_steps = 250;
-int big_steps   = 6000;
-
-int lastDir = 0; 
-int nextDir = 0;
-
 int reading_rect_interval_default = 5000;
 int reading_rect_interval = reading_rect_interval_default;
 
@@ -67,16 +61,19 @@ PFont myFont;
 
 int current_segment_index = 0;
 
-int segment_rows = 2;
-int segment_cols = 2;
+int segment_rows = 9;
+int segment_cols = 9;
 
-int RECT_HEIGHT = 6000; // 6000
-int RECT_WIDTH  = 6000; // 6000
+int RECT_HEIGHT = 39; // 6000
+int RECT_WIDTH  = 35; // 6000
+
+int small_steps = 1;
+int big_steps  = RECT_WIDTH;
 
 int current_row_index = 0;
 int current_col_index = 0;
 
-boolean noMachine = true;
+boolean noMachine = false;
 
 static int MARGIN = 10;
 
@@ -84,7 +81,7 @@ void setup() {
   
   frameRate(30);
 
-  size(400, 400, P2D); // much smaller
+  size(400, 400); // much smaller
 
   // connect to socket
   myClient = new Client(this, "127.0.0.1", 3000); 
@@ -193,19 +190,25 @@ void sendSegmentSocket (int segmentIndex) {
   GetRequest get = new GetRequest("http://0.0.0.0:3000/on_segment/" + segmentIndex);
   get.send();
   macroState = WAITING_RESPONSE;
-  System.out.println("Reponse Content: " + get.getContent());
-  System.out.println("Reponse Content-Length Header: " + get.getHeader("Content-Length"));
-  if (get.getContent().equals("ok")) {
-    macroState = WAITING_TIME;
-    machineController.goToNextSegment();
-  } else {
-    macroState = ERROR;
-  }
+  println("Reponse Content: " + get.getContent());
+  println("Reponse Content-Length Header: " + get.getHeader("Content-Length"));
+	if (segmentIndex == 0) {
+		macroState = READING_RECT;
+	} else {
+		macroState = WAITING_TIME;
+	}
+	if (get.getContent().equals("fail")) {
+		println("Error on segment: " + segmentIndex);
+		reading_rect_interval = 0;
+	} else {
+		reading_rect_interval = reading_rect_interval_default;
+	}
+	machineController.goToNextSegment();
 }
 
 void readSegment (int segmentIndex) {
   macroState = SENDING_SEGMENT;
-  println("sendSegmentSocket");
+  println("readSegment");
   GetRequest get = new GetRequest("http://0.0.0.0:3000/on_segment/" + segmentIndex);
   get.send();
   System.out.println("Reponse Content: " + get.getContent());
@@ -221,7 +224,6 @@ void sendClearMessage () {
 }
 
 void startReadingPlate () {
-  nextDir = 0;
   macroState = READING_PLATE;
   machineController.setInitialPosition();
   current_segment_index = 0;
@@ -243,15 +245,15 @@ void keyPressed() {
     case '.': toggleDebug(!debug); break;
     case 'r': startReadingPlate(); break;
     case 'c': sendClearMessage(); break;
-    case '1': readSegment(0); break;
-    case '2': readSegment(1); break;
-    case '3': readSegment(2); break;
-    case '4': readSegment(3); break;
-    case '5': readSegment(4); break;
-    case '6': readSegment(5); break;
-    case '7': readSegment(6); break;
-    case '8': readSegment(7); break;
-    case '9': readSegment(8); break;
-    case '0': readSegment(9); break;
+    case '1': sendSegmentSocket(0); break;
+    case '2': sendSegmentSocket(1); break;
+    case '3': sendSegmentSocket(2); break;
+    case '4': sendSegmentSocket(3); break;
+    case '5': sendSegmentSocket(4); break;
+    case '6': sendSegmentSocket(5); break;
+    case '7': sendSegmentSocket(6); break;
+    case '8': sendSegmentSocket(7); break;
+    case '9': sendSegmentSocket(8); break;
+    case '0': sendSegmentSocket(9); break;
   }
 }
