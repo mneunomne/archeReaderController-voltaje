@@ -10,7 +10,9 @@ import netP5.*;
 import oscP5.*;
 import processing.net.*; 
 
-Client myClient;
+import websockets.*;
+
+WebsocketServer ws;
 
 boolean debug = true;
 
@@ -84,7 +86,9 @@ void setup() {
   size(400, 400); // much smaller
 
   // connect to socket
-  myClient = new Client(this, "127.0.0.1", 3000); 
+  //myClient = new Client(this, "127.0.0.1", 3000); 
+
+  ws = new WebsocketServer(this,8025,"/arche-scriptures");
 
   smooth();
   
@@ -142,7 +146,7 @@ void read_plate () {
   macroState = READING_PLATE;
   // machineController.runRect();
   machineController.setInitialPosition();
-  sendSegmentSocket(current_segment_index);
+  readSegment(current_segment_index);
 }
 
 void stop_machine () {
@@ -176,17 +180,15 @@ void toggleDebug (boolean value) {
 
 import http.requests.*;
 
-void sendMessage (String route, String message) {
-  println("sendMessage");
-  GetRequest get = new GetRequest("http://0.0.0.0:3000/" + route + "/" + message);
-  get.send();
-  System.out.println("Reponse Content: " + get.getContent());
-  System.out.println("Reponse Content-Length Header: " + get.getHeader("Content-Length"));
+void sendSocketMessage (String message) {
+  println("sendSocketMessage", message);
+	// broadcast message to all connected clients
+	ws.sendMessage(message);
 }
 
-void sendSegmentSocket (int segmentIndex) {
+void readSegment (int segmentIndex) {
   macroState = SENDING_SEGMENT;
-  println("sendSegmentSocket");
+  println("send Segment Http");
   GetRequest get = new GetRequest("http://0.0.0.0:3000/on_segment/" + segmentIndex);
   get.send();
   macroState = WAITING_RESPONSE;
@@ -198,21 +200,15 @@ void sendSegmentSocket (int segmentIndex) {
 		macroState = WAITING_TIME;
 	}
 	if (get.getContent().equals("fail")) {
+		// broadcast error to all clients
+		sendSocketMessage("fail-" + segmentIndex);
 		println("Error on segment: " + segmentIndex);
 		reading_rect_interval = 0;
 	} else {
+		sendSocketMessage("detection-" + get.getContent());
 		reading_rect_interval = reading_rect_interval_default;
 	}
 	machineController.goToNextSegment();
-}
-
-void readSegment (int segmentIndex) {
-  macroState = SENDING_SEGMENT;
-  println("readSegment");
-  GetRequest get = new GetRequest("http://0.0.0.0:3000/on_segment/" + segmentIndex);
-  get.send();
-  System.out.println("Reponse Content: " + get.getContent());
-  System.out.println("Reponse Content-Length Header: " + get.getHeader("Content-Length"));
 }
 
 void sendClearMessage () {
@@ -227,7 +223,7 @@ void startReadingPlate () {
   macroState = READING_PLATE;
   machineController.setInitialPosition();
   current_segment_index = 0;
-  sendSegmentSocket(current_segment_index);
+  readSegment(current_segment_index);
 }
 
 // wasd movement keys
@@ -245,15 +241,15 @@ void keyPressed() {
     case '.': toggleDebug(!debug); break;
     case 'r': startReadingPlate(); break;
     case 'c': sendClearMessage(); break;
-    case '1': sendSegmentSocket(0); break;
-    case '2': sendSegmentSocket(1); break;
-    case '3': sendSegmentSocket(2); break;
-    case '4': sendSegmentSocket(3); break;
-    case '5': sendSegmentSocket(4); break;
-    case '6': sendSegmentSocket(5); break;
-    case '7': sendSegmentSocket(6); break;
-    case '8': sendSegmentSocket(7); break;
-    case '9': sendSegmentSocket(8); break;
-    case '0': sendSegmentSocket(9); break;
+    case '1': readSegment(0); break;
+    case '2': readSegment(1); break;
+    case '3': readSegment(2); break;
+    case '4': readSegment(3); break;
+    case '5': readSegment(4); break;
+    case '6': readSegment(5); break;
+    case '7': readSegment(6); break;
+    case '8': readSegment(7); break;
+    case '9': readSegment(8); break;
+    case '0': readSegment(9); break;
   }
 }

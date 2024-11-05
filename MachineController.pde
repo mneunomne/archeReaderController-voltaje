@@ -41,11 +41,11 @@ class MachineController {
 
   void startMovement() {
     int in_row_index = current_segment_index % segment_rows;
-    println("startMovement", macroStates[macroState], current_segment_index, in_row_index, current_row_index, segment_rows);
+    //println("startMovement", macroStates[macroState], current_segment_index, in_row_index, current_row_index, segment_rows);
 		if (current_col_index < segment_cols - 1) {
 			// continue moving same direction
 			macroState = READING_RECT;
-			moveX(-RECT_WIDTH);
+			moveX(RECT_WIDTH);
 			current_col_index+=1;
 		} else { // if at the end of the row 
 			if (current_row_index < segment_rows-1) { // of its it not the last row
@@ -59,10 +59,7 @@ class MachineController {
   }
 
   void goToNextSegment() {
-    println("goToNextSegment");
-    
 		macroState = READING_RECT;
-
     timeStarted = millis();
     waitNextMovement = true;
   }
@@ -105,7 +102,7 @@ class MachineController {
     macroState = RETURNING_TOP;
     current_row_index=0;
 		current_col_index=0;
-    move(RECT_WIDTH * (segment_cols-1), -RECT_HEIGHT * (segment_rows-1));
+    move(-RECT_WIDTH * (segment_cols-1), RECT_HEIGHT * (segment_rows-1));
   }
 
   void jumpRow () {
@@ -114,7 +111,7 @@ class MachineController {
 		current_col_index = 0;
     macroState = JUMPING_ROW;
     accumulated_y+=RECT_HEIGHT;
-    move(RECT_WIDTH * (segment_cols-1), RECT_HEIGHT);
+    move(-RECT_WIDTH * (segment_cols-1), -RECT_HEIGHT);
   }
 
   void listenToSerialEvents () {
@@ -130,7 +127,7 @@ class MachineController {
 					}
 				}
 				if (inBuffer.contains("r")) {
-					move(-84, 106);
+					move(-84 - (RECT_WIDTH * (segment_cols-1)), 106 + (RECT_HEIGHT * (segment_rows-1)));
 				}
 			}
     }
@@ -146,11 +143,11 @@ class MachineController {
 			case JUMPING_ROW:
       case READING_RECT:
         current_segment_index+=1;
-        sendSegmentSocket(current_segment_index);
+        readSegment(current_segment_index);
         break;
 			case RETURNING_TOP:
 				current_segment_index = 0;
-				sendSegmentSocket(0);
+				readSegment(0);
 				break;
   	}
 	}
