@@ -101,7 +101,7 @@ class MachineController {
 
   void returnToTop () {
     println("returnToTop!");
-		sendSocketMessage("returnToTop");
+		sendSocketMessage("return_to_top");
     macroState = RETURNING_TOP;
     current_row_index=0;
 		current_col_index=0;

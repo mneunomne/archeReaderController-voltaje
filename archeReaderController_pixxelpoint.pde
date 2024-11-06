@@ -210,11 +210,11 @@ void readSegment (int segmentIndex) {
 	}
 	if (get.getContent().equals("fail")) {
 		// broadcast error to all clients
-		sendSocketMessage("fail-" + segmentIndex);
+		sendSocketMessage("index-" + segmentIndex + "-fail");
 		println("Error on segment: " + segmentIndex);
 		reading_rect_interval = 0;
 	} else {
-		sendSocketMessage("detection-" + get.getContent());
+		sendSocketMessage("index-" + segmentIndex + "-detection-" + get.getContent());
 		reading_rect_interval = reading_rect_interval_default;
 	}
 	machineController.goToNextSegment();
