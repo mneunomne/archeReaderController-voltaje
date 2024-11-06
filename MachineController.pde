@@ -69,22 +69,22 @@ class MachineController {
     accumulated_y = 0;
   }
 
-	void move(float x, float y) {
+	void move(float x, float y, int type) {
     if (noMachine) return;
     // move to a point
-    sendMovement(x, y, 1, microdelay);
+    sendMovement(x, y, type, microdelay);
   }
 
   void moveX (float val) {
     //char dir = steps > 0 ? '+' : '-';
     //sendMovementCommand(dir, abs(steps), 'x');
-		move(val, 0);
+		move(val, 0, 3);
   }
 
   void moveY (float val) {
     //char dir = steps > 0 ? '+' : '-';
     //sendMovementCommand(dir, abs(steps), 'y');
-		move(0, val);
+		move(0, val, 2);
   }
 
 	void sendMovement(float _x, float _y, int type, int microdelay) {
@@ -105,7 +105,7 @@ class MachineController {
     macroState = RETURNING_TOP;
     current_row_index=0;
 		current_col_index=0;
-    move(-RECT_WIDTH * (segment_cols-1), RECT_HEIGHT * (segment_rows-1));
+    move(-RECT_WIDTH * (segment_cols-1), RECT_HEIGHT * (segment_rows-1), 1);
   }
 
   void jumpRow () {
@@ -114,7 +114,7 @@ class MachineController {
 		current_col_index = 0;
     macroState = JUMPING_ROW;
     accumulated_y+=RECT_HEIGHT;
-    move(-RECT_WIDTH * (segment_cols-1), -RECT_HEIGHT);
+    move(-RECT_WIDTH * (segment_cols-1), -RECT_HEIGHT, 1);
   }
 
   void listenToSerialEvents () {
@@ -127,10 +127,15 @@ class MachineController {
 					println("[MachineController] movement over: ", lastMovement);
 					if (lastMovement != null) {
 						onMovementEnd();
+						if (lastMovement.contains("G9")) {
+							delay(1000);
+							// start!
+							startReadingPlate();
+						}
 					}
 				}
 				if (inBuffer.contains("r")) {
-					move(-114 - (RECT_WIDTH * (segment_cols-1)), 110 + (RECT_HEIGHT * (segment_rows-1)));
+					move(-114 - (RECT_WIDTH * (segment_cols-1)), 110 + (RECT_HEIGHT * (segment_rows-1)), 9);
 				}
 			}
     }
