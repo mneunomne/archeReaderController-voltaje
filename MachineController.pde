@@ -69,28 +69,30 @@ class MachineController {
     accumulated_y = 0;
   }
 
-	void move(int x, int y) {
+	void move(float x, float y) {
     if (noMachine) return;
     // move to a point
     sendMovement(x, y, 1, microdelay);
   }
 
-  void moveX (int val) {
+  void moveX (float val) {
     //char dir = steps > 0 ? '+' : '-';
     //sendMovementCommand(dir, abs(steps), 'x');
 		move(val, 0);
   }
 
-  void moveY (int val) {
+  void moveY (float val) {
     //char dir = steps > 0 ? '+' : '-';
     //sendMovementCommand(dir, abs(steps), 'y');
 		move(0, val);
   }
 
-	void sendMovement(int x, int y, int type, int microdelay) {
+	void sendMovement(float _x, float _y, int type, int microdelay) {
     if (noMachine) return;
     // encode movement
     // String message = "[" + x + "," + y + "]";
+		int x = int(_x * steps_per_pixel);
+		int y = int(_y * steps_per_pixel); 
     String message = "G" + type +  " X" + x + " Y" + y + " F" + microdelay + " I" + 0 + '\n';
     port.write(message);
 		lastMovement = message;
@@ -99,6 +101,7 @@ class MachineController {
 
   void returnToTop () {
     println("returnToTop!");
+		sendSocketMessage("returnToTop");
     macroState = RETURNING_TOP;
     current_row_index=0;
 		current_col_index=0;

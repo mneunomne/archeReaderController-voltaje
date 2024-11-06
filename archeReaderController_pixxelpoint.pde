@@ -66,11 +66,11 @@ int current_segment_index = 0;
 int segment_rows = 9;
 int segment_cols = 9;
 
-int RECT_HEIGHT = 39; // 6000
-int RECT_WIDTH  = 35; // 6000
+float RECT_HEIGHT = 39.5; // 6000
+float RECT_WIDTH  = 35.5; // 6000
 
 int small_steps = 1;
-int big_steps  = RECT_WIDTH;
+int big_steps  = int(RECT_WIDTH);
 
 int current_row_index = 0;
 int current_col_index = 0;
@@ -78,6 +78,8 @@ int current_col_index = 0;
 boolean noMachine = false;
 
 static int MARGIN = 10;
+
+int steps_per_pixel = 68;
 
 void setup() {
   
@@ -187,9 +189,16 @@ void sendSocketMessage (String message) {
 }
 
 void readSegment (int segmentIndex) {
+	// wait 1 second before sending the segment
+	delay(2000);
+	println("get avaraged frames");
+  GetRequest get = new GetRequest("http://0.0.0.0:3000/get_avaraged_frames");
+  get.send();
+  println("Reponse Content: " + get.getContent());
+
   macroState = SENDING_SEGMENT;
   println("send Segment Http");
-  GetRequest get = new GetRequest("http://0.0.0.0:3000/on_segment/" + segmentIndex);
+  get = new GetRequest("http://0.0.0.0:3000/on_segment/" + segmentIndex);
   get.send();
   macroState = WAITING_RESPONSE;
   println("Reponse Content: " + get.getContent());

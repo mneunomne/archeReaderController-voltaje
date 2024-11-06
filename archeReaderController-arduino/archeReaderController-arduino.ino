@@ -178,8 +178,8 @@ void move(long diffX, long diffY, int maxDelay) {
   int dirY = (diffY > 0) ? 1 : -1;
 
   // Calculate the total steps for each axis
-  long totalStepsX = labs(diffX * steps_per_pixel);
-  long totalStepsY = labs(diffY * steps_per_pixel);
+  long totalStepsX = labs(diffX);
+  long totalStepsY = labs(diffY);
 
   Serial.print("totalStepsX: ");
   Serial.print(String(totalStepsX));
