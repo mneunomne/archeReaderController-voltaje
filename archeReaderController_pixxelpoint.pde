@@ -67,7 +67,7 @@ int segment_rows = 9;
 int segment_cols = 9;
 
 float RECT_HEIGHT = 39.5; // 6000
-float RECT_WIDTH  = 35.5; // 6000
+float RECT_WIDTH  = 34.5; // 6000
 
 int small_steps = 1;
 int big_steps  = int(RECT_WIDTH);
