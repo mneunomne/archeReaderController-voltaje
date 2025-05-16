@@ -135,7 +135,7 @@ class MachineController {
 					}
 				}
 				if (inBuffer.contains("r")) {
-					move(-114 - (RECT_WIDTH * (segment_cols-1)), 110 + (RECT_HEIGHT * (segment_rows-1)), 9);
+					move(-102 - (RECT_WIDTH * (segment_cols-1)), 53 + (RECT_HEIGHT * (segment_rows-1)), 9);
 				}
 			}
     }

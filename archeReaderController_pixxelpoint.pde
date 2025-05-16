@@ -36,7 +36,7 @@ static final int RETURNING_TOP_OFFSET       = 11;
 static final int RETURNING_TOP              = 12;
 static final int RESET_OFFSET               = 13;
 
-static final int MICRODELAY_DEFAULT 				= 200;
+static final int MICRODELAY_DEFAULT 				= 300;
 
 int macroState = 0;
 String [] macroStates = {
@@ -66,11 +66,12 @@ int current_segment_index = 0;
 int segment_rows = 9;
 int segment_cols = 9;
 
-float RECT_HEIGHT = 39.5; // 6000
-float RECT_WIDTH  = 34.5; // 6000
+float RECT_HEIGHT = 34.8; // 6000
+float RECT_WIDTH  = 29; // 6000
 
 int small_steps = 1;
-int big_steps  = int(RECT_WIDTH);
+int big_steps_w = int(RECT_WIDTH);
+int big_steps_h = int(RECT_HEIGHT);
 
 int current_row_index = 0;
 int current_col_index = 0;
@@ -79,7 +80,7 @@ boolean noMachine = false;
 
 static int MARGIN = 10;
 
-int steps_per_pixel = 68;
+int steps_per_pixel = 40;
 
 void setup() {
   
@@ -131,11 +132,6 @@ void small_steps_slider (float value) {
   println("small_steps_slider", value, small_steps);
 }
 
-void big_steps_slider (float value) {
-  big_steps = floor(value);
-  println("big_steps_slider", value, big_steps);
-}
-
 void reading_rect_interval_slider (float value) {
   reading_rect_interval = int(value);
 }
@@ -164,10 +160,10 @@ void wasd_command (char key) {
     case 's': machineController.moveY(-small_steps); break;
     case 'd': machineController.moveX(-small_steps); break;
     /* big movements */
-    case 'W': machineController.moveY(big_steps); break;
-    case 'A': machineController.moveX(big_steps); break;
-    case 'S': machineController.moveY(-big_steps); break;
-    case 'D': machineController.moveX(-big_steps); break;
+    case 'W': machineController.moveY(big_steps_h); break;
+    case 'A': machineController.moveX(big_steps_w); break;
+    case 'S': machineController.moveY(-big_steps_h); break;
+    case 'D': machineController.moveX(-big_steps_w); break;
   }
 }
 

@@ -1,8 +1,11 @@
 #define STEP_PIN_X 2
 #define DIR_PIN_X 5
 
-#define STEP_PIN_Y 3
-#define DIR_PIN_Y 6
+#define STEP_PIN_Y1 3
+#define DIR_PIN_Y1 6
+
+#define STEP_PIN_Y2 4
+#define DIR_PIN_Y2 7
 
 #define ENA_PIN 8
 
@@ -24,6 +27,7 @@ GCodeParser GCode = GCodeParser();
 int minDelay = 2;
 int maxDelayDefault = 200;
 
+int default_delay = 300;
 
 boolean reachedXLimit = false;
 boolean reachedYLimit = false;
@@ -44,8 +48,10 @@ void setup() {
   
   pinMode(STEP_PIN_X,OUTPUT);
   pinMode(DIR_PIN_X,OUTPUT);
-  pinMode(STEP_PIN_Y,OUTPUT);
-  pinMode(DIR_PIN_Y,OUTPUT);
+  pinMode(STEP_PIN_Y1,OUTPUT);
+  pinMode(DIR_PIN_Y1,OUTPUT);
+  pinMode(STEP_PIN_Y2,OUTPUT);
+  pinMode(DIR_PIN_Y2,OUTPUT);
   pinMode(ENA_PIN,OUTPUT);
 
   pinMode(limitX, INPUT_PULLUP);
@@ -122,8 +128,8 @@ void listenToPort() {
 }
 
 void goHome () {
-  moveX(100000L, 1, 200, false);
-  moveY(100000L, -1, 200, false);
+  moveX(100000L, 1, default_delay, false);
+  moveY(100000L, -1, default_delay, false);
 }
 
 
@@ -133,10 +139,10 @@ void start () {
   digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
   digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
   // initial movement 
-  moveX(500L, 1, 500, false);
-  moveY(500L, -1, 500, false);
-  moveX(500L, -1, 500, false);
-  moveY(500L, 1, 500, false);
+  moveX(500L, 1, default_delay, false);
+  moveY(500L, -1, default_delay, false);
+  moveX(500L, -1, default_delay, false);
+  moveY(500L, 1, default_delay, false);
 
   goHome();
 
@@ -278,7 +284,7 @@ void moveX (long steps, int dir, int microdelay, bool ignoreLimit) {
   }
   for (int i = 0; i < steps; i++) {
     if (checkLimitX() && !ignoreLimit) {
-      moveX(1000L, -dir, 500, true);
+      moveX(1000L, -dir, default_delay, true);
       return;
     }
     curX += 1 * dir;
@@ -292,19 +298,30 @@ void moveX (long steps, int dir, int microdelay, bool ignoreLimit) {
 
 void moveY (long steps, int dir, int microdelay, bool ignoreLimit) {
   if (dir > 0) {
-      digitalWrite(DIR_PIN_Y,LOW); // enable motor HIGH -> DISABLE
+      digitalWrite(DIR_PIN_Y1,LOW); // enable motor HIGH -> DISABLE
+      delayMicroseconds(1);
+      digitalWrite(DIR_PIN_Y2,LOW); // enable motor HIGH -> DISABLE
   } else {
-      digitalWrite(DIR_PIN_Y,HIGH); // enable motor HIGH -> DISABLE
+      digitalWrite(DIR_PIN_Y1,HIGH); // enable motor HIGH -> DISABLE
+      delayMicroseconds(1);
+      digitalWrite(DIR_PIN_Y2,HIGH); // enable motor HIGH -> DISABLE
   }
   for (int i = 0; i < steps; i++) {
     if (checkLimitY() && !ignoreLimit) {
-      moveY(1000L, -dir, 500, true);
+      moveY(1000L, -dir, default_delay, true);
       return;
     }
     curY += 1 * dir;
-    digitalWrite(STEP_PIN_Y,HIGH);
+    digitalWrite(STEP_PIN_Y1,HIGH);
     delayMicroseconds(1);
-    digitalWrite(STEP_PIN_Y,LOW);
+    digitalWrite(STEP_PIN_Y1,LOW);
     delayMicroseconds(microdelay);
+    // y2
+    delayMicroseconds(1);
+    digitalWrite(STEP_PIN_Y2,HIGH);
+    delayMicroseconds(1);
+    digitalWrite(STEP_PIN_Y2,LOW);
+    delayMicroseconds(microdelay);
+    
   }
 }
